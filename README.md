@@ -32,7 +32,7 @@ The Gemini API acts as the core climate intelligence engine. When a user clicks 
 ## Installation Steps
 ```bash
 # Clone the repository
-git clone <your-repo-link>
+git clone https://github.com/arjunalliyankal/build-with-ai.git
 
 # Go to project folder
 cd kerala-climate-visualizer
@@ -42,7 +42,7 @@ cd backend
 pip install -r requirements.txt
 
 # Create .env based on the example and add your API keys
-# OWM_API_KEY, GEMINI_API_KEY, GOOGLE_MAPS_KEY
+# (open weather map api) OWM_API_KEY, GEMINI_API_KEY, GOOGLE_MAPS_KEY
 cp ../.env.example ../.env
 
 # Run the FastAPI Backend
