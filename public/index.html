@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScamShield AI Pro - Cybersecurity Command Center</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div id="capture-area">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+
+        <header class="glass-header">
+            <div class="logo">
+                <ion-icon name="finger-print"></ion-icon>
+                <h1>ScamShield <span>Pro</span></h1>
+            </div>
+            <div class="header-slogan">National Fraud Detection & Reporting Ecosystem</div>
+            <div class="controls">
+                <div class="server-status" title="Brain Link: Active">
+                    <div class="pulse-dot"></div>
+                    <span>Link: Live</span>
+                </div>
+                <button id="history-toggle" class="icon-btn" title="View Scan History">
+                    <ion-icon name="time"></ion-icon>
+                </button>
+                <button id="lang-toggle" class="icon-btn" title="Toggle Language (English/Malayalam)">
+                    <span id="lang-btn-text">ML</span>
+                </button>
+                <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
+                    <ion-icon name="moon"></ion-icon>
+                </button>
+            </div>
+        </header>
+
+        <!-- New App Tabs -->
+        <nav class="app-tabs">
+            <button class="tab-btn active" data-target="scanner-view"><ion-icon name="analytics"></ion-icon> Intelligence Center</button>
+            <button class="tab-btn hazard-tab" data-target="report-view"><ion-icon name="shield"></ion-icon> Cyber Complaint Portal</button>
+        </nav>
+
+        <main class="container">
+            <!-- ======================= VIEW 1: INTELLIGENCE SCANNER ======================= -->
+            <div id="scanner-view" class="tab-view active">
+                <section class="scanner-card glass-panel" id="scanner-area">
+                    <div class="input-header">
+                        <h2>Analyze Digital Footprint</h2>
+                        <button id="voice-btn" class="icon-btn outline-pulse" title="Voice Input">
+                            <ion-icon name="mic"></ion-icon>
+                        </button>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <textarea id="scanner-input" placeholder="Paste suspicious SMS, Email, or URL here..."></textarea>
+                        <div id="loader-overlay" class="loader-overlay hidden">
+                            <div class="brain-scan"><div class="scan-line"></div></div>
+                            <p id="loader-text">Profiling Attacker Psychology...</p>
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <div class="demo-buttons">
+                            <button class="sample-btn" data-text="Your State Bank account will be blocked today! Click this link to update PAN/KYC: http://sbi-kyc-alert.com" title="Bank Scam">Demo: Bank Fear</button>
+                            <button class="sample-btn" data-text="Congratulations! Your mobile number won ₹5,00,000 in KBC Lottery. Contact our manager via WhatsApp link immediately." title="Lottery Scam">Demo: Greed</button>
+                            <button class="sample-btn" data-text="Hi Team, just confirming our sync at 3 PM IST today. Let me know if we need to reschedule." title="Safe Text">Demo: Normal</button>
+                        </div>
+                        <div class="flex-spacer"></div>
+                        <button id="analyze-btn" class="action-btn primary glow-btn">
+                            <ion-icon name="analytics"></ion-icon>
+                            <span id="analyze-btn-text">Execute Mind Scan</span>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="result-dashboard hidden" id="result-dashboard">
+                    <div class="result-header">
+                        <h3>Threat Intelligence Board</h3>
+                        <div style="display: flex; gap: 1rem;">
+                            <!-- Link directly to the Report Tab now -->
+                            <button id="quick-cyber-btn" class="action-btn outline-blue hidden" style="border-radius: 8px;">
+                                <ion-icon name="shield-half"></ion-icon> Draft FIR
+                            </button>
+                            <button id="reset-btn" class="icon-btn outline"><ion-icon name="refresh"></ion-icon></button>
+                        </div>
+                    </div>
+                    
+                    <div class="intelligence-grid">
+                        <div class="grid-panel glass-panel center-align" id="score-card">
+                            <div class="circular-progress" id="progress-circle">
+                                <svg viewBox="0 0 100 100">
+                                    <circle class="bg" cx="50" cy="50" r="45"></circle>
+                                    <circle class="progress" id="score-ring" cx="50" cy="50" r="45"></circle>
+                                </svg>
+                                <div class="score-value">
+                                    <h2 id="risk-score">0</h2>
+                                    <span>Risk Matrix</span>
+                                </div>
+                            </div>
+                            <div class="verdict-wrapper"><div class="verdict-badge" id="verdict-badge">Scanning...</div></div>
+                        </div>
+
+                        <div class="grid-panel glass-panel summary-panel">
+                            <h4><ion-icon name="body"></ion-icon> Manipulation Vectors</h4>
+                            <div id="tactics-tags" class="tags-container"></div>
+                            <div class="psych-details">
+                                <div class="info-block" id="intent-block">
+                                    <div class="info-title"><ion-icon name="skull"></ion-icon> Attacker Intent</div>
+                                    <p id="attacker-intent">...</p>
+                                </div>
+                                <div class="info-block" id="victim-block">
+                                    <div class="info-title"><ion-icon name="people"></ion-icon> Target Demographic</div>
+                                    <p id="target-victim">...</p>
+                                </div>
+                            </div>
+                            <p id="explanation-text" class="explanation-text">...</p>
+                        </div>
+
+                        <div class="grid-panel glass-panel summary-panel forensic-panel">
+                            <h4><ion-icon name="globe"></ion-icon> Digital Forensics Trace</h4>
+                            <div class="trace-grid">
+                                <div class="trace-item">
+                                    <sub>IP ADDRESS</sub>
+                                    <div class="trace-val monospace txt-scam" id="trace-ip">Initializing...</div>
+                                </div>
+                                <div class="trace-item">
+                                    <sub>GEO LOCATION</sub>
+                                    <div class="trace-val" id="trace-geo">Tracing...</div>
+                                </div>
+                                <div class="trace-item">
+                                    <sub>REGISTRAR / HOST</sub>
+                                    <div class="trace-val" id="trace-host">Lookup Pending...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid-panel glass-panel full-width">
+                            <h4><ion-icon name="eye"></ion-icon> Text Trigger View</h4>
+                            <div id="parsed-text" class="parsed-content"></div>
+                        </div>
+                    </div>
+
+                    <!-- SIMULATION MODE SECTION -->
+                    <div id="simulation-trigger-container" class="simulation-container">
+                        <button id="simulate-btn" class="action-btn hazard-btn" style="display:none;">
+                            <ion-icon name="warning"></ion-icon> What happens if I fall for this?
+                        </button>
+                    </div>
+
+                    <div id="simulation-player" class="simulation-player hidden glass-panel">
+                        <div class="sim-header">
+                            <h4><ion-icon name="videocam"></ion-icon> Live Attack Simulation</h4>
+                            <div class="sim-progress-bar"><div id="sim-progress-fill"></div></div>
+                        </div>
+                        <div class="sim-steps-wrapper">
+                            <div class="sim-step" id="sim-step-1">
+                                <div class="sim-icon"><ion-icon name="link"></ion-icon></div>
+                                <div class="sim-text"><h5>Phase 1: The Hook</h5><p>User clicks the disguised malicious link in panic.</p></div>
+                            </div>
+                            <div class="sim-step" id="sim-step-2">
+                                <div class="sim-icon"><ion-icon name="browsers"></ion-icon></div>
+                                <div class="sim-text"><h5>Phase 2: The Illusion</h5><p>A pixel-perfect cloned portal loads on their device.</p></div>
+                            </div>
+                            <div class="sim-step" id="sim-step-3">
+                                <div class="sim-icon"><ion-icon name="keypad"></ion-icon></div>
+                                <div class="sim-text"><h5>Phase 3: Data Harvest</h5><p>User unwittingly inputs their OTP/PIN credentials.</p></div>
+                            </div>
+                            <div class="sim-step" id="sim-step-4">
+                                <div class="sim-icon danger-icon"><ion-icon name="cash"></ion-icon></div>
+                                <div class="sim-text"><h5>Phase 4: Critical Impact</h5><p>Attacker intercepts data. Massive financial drain occurs.</p></div>
+                            </div>
+                        </div>
+                        <button id="close-sim-btn" class="action-btn glow-btn">Close Simulation</button>
+                    </div>
+                </section>
+            </div>
+
+
+            <!-- ======================= VIEW 2: CYBER COMPLAINT PORTAL ======================= -->
+            <div id="report-view" class="tab-view hidden">
+                <div class="report-dashboard">
+                    <!-- Emergency Actions Sidebar -->
+                    <div class="emergency-panel glass-panel">
+                        <h4 class="emergency-title"><ion-icon name="warning"></ion-icon> <span>Emergency Actions</span></h4>
+                        <p class="emergency-sub">Critical steps to secure your assets immediately.</p>
+                        
+                        <div class="emergency-list">
+                            <a href="tel:1930" class="emergency-card red-pulse">
+                                <ion-icon name="call"></ion-icon>
+                                <div>
+                                    <h5>Call 1930</h5>
+                                    <span>National Cybercrime Helpline (24/7)</span>
+                                </div>
+                            </a>
+                            <div class="emergency-card safe-pulse">
+                                <ion-icon name="lock-closed"></ion-icon>
+                                <div>
+                                    <h5>Freeze Bank Account</h5>
+                                    <span>Call your bank immediately to block affected cards/UPI.</span>
+                                </div>
+                            </div>
+                            <a href="https://cybercrime.gov.in" target="_blank" class="emergency-card outline-link">
+                                <ion-icon name="link"></ion-icon>
+                                <div>
+                                    <h5>cybercrime.gov.in</h5>
+                                    <span>Official Govt. of India Portal</span>
+                                </div>
+                            </a>
+                            <a href="https://keralapolice.gov.in" target="_blank" class="emergency-card outline-link" style="margin-top:-10px;">
+                                <ion-icon name="shield-checkmark"></ion-icon>
+                                <div>
+                                    <h5>Kerala Cyber Police</h5>
+                                    <span>State Nodal Agency</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Smart Report Form Area -->
+                    <div class="report-form-container glass-panel">
+                        <div class="form-header">
+                            <h2><ion-icon name="document-text"></ion-icon> AI FIR Generator</h2>
+                            <p>Turn messy details into a legally formatted police complaint instantly powered by Gemini.</p>
+                        </div>
+                        
+                        <div class="split-form">
+                            <div class="form-group">
+                                <label>Victim Legal Name</label>
+                                <input type="text" id="fir-name" placeholder="John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label>Contact Phone</label>
+                                <input type="tel" id="fir-phone" placeholder="+91 90000 00000">
+                            </div>
+                        </div>
+                        <div class="split-form">
+                            <div class="form-group">
+                                <label>Category of Scam</label>
+                                <select id="fir-type">
+                                    <option value="UPI / Banking Fraud">UPI / Banking Fraud</option>
+                                    <option value="Job / Task Scam">Job / Telegram Task Scam</option>
+                                    <option value="Lottery / Courier Scam">Lottery / Customs Courier Scam</option>
+                                    <option value="Impersonation (CBI/Police)">Impersonation (Fake Police/CBI)</option>
+                                    <option value="Other Financial Fraud">Other Financial Fraud</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Amount Defrauded (₹) (Optional)</label>
+                                <input type="number" id="fir-amount" placeholder="e.g. 50000">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Describe the Incident (Use your own words)</label>
+                            <textarea id="fir-description" style="min-height: 120px;" placeholder="I received a call from someone claiming to be SBI. They threatened to block my account and sent an SMS link..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Upload Evidence (Screenshots/PDFs)</label>
+                            <div class="file-upload-box">
+                                <ion-icon name="cloud-upload"></ion-icon>
+                                <span>Click to attach files or capture screen evidence</span>
+                                <input type="file" id="evidence-upload" multiple style="display:none;">
+                            </div>
+                            <div id="file-names" class="file-names"></div>
+                        </div>
+
+                        <button id="generate-fir-btn" class="action-btn primary blue-glow" style="width:100%; justify-content:center; padding:1.2rem;">
+                            <ion-icon name="settings"></ion-icon> Generate Official FIR Draft
+                        </button>
+
+                        <!-- AI FIR output area -->
+                        <div id="fir-output-container" class="fir-output-container hidden">
+                            <div class="form-header" style="border-top:1px solid var(--border-glass); margin-top:2rem; padding-top:2rem;">
+                                <h3 style="color:var(--cyber-blue)"><ion-icon name="checkmark-done-circle"></ion-icon> Legal Draft Ready</h3>
+                                <p>This draft is structured specifically for filing on National Cybercrime Portals.</p>
+                            </div>
+                            
+                            <textarea id="fir-output-text" readonly style="min-height:350px; font-family:'Courier New', monospace; font-size: 1rem;"></textarea>
+                            
+                            <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem;">
+                                <button id="copy-fir-btn" class="action-btn outline"><ion-icon name="copy"></ion-icon> Copy to Clipboard</button>
+                                <a href="https://cybercrime.gov.in" target="_blank" class="action-btn primary cyber-btn-small" style="text-decoration:none;"><ion-icon name="send"></ion-icon> Submit to NCRP</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div> <!-- /capture-area -->
+
+    <!-- Sidebar History System -->
+    <div id="history-sidebar" class="sidebar hidden glass-panel">
+        <div class="sidebar-header">
+            <h3>Investigation Logs</h3>
+            <button id="close-history" class="icon-btn"><ion-icon name="close"></ion-icon></button>
+        </div>
+        <div id="history-list" class="history-list"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js?v=1000"></script>
+</body>
+</html>
