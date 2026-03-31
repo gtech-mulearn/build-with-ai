@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerala Coastal Climate Visualizer</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600&family=Roboto:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --nav-bg: #0a2540;
+            --bg-color: #e8f4f8;
+            --accent-color: #1565c0;
+            --text-main: #333;
+            --text-light: #666;
+            --vuln-critical: #d32f2f;
+            --vuln-high: #f57c00;
+            --vuln-moderate: #fbc02d;
+            --vuln-low: #388e3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            font-family: 'Teko', sans-serif;
+        }
+
+        /* Navbar */
+        nav {
+            background-color: var(--nav-bg);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        nav h1 {
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        /* Main Layout */
+        main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        #map-container {
+            width: 55%;
+            height: 100%;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        #data-panel {
+            width: 45%;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            background-color: white;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Cards */
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h2 {
+            color: var(--accent-color);
+            font-size: 24px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Weather Panel */
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .weather-tile {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .weather-tile .label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .weather-tile .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-top: 5px;
+        }
+
+        /* Climate Forecast Panel */
+        #forecast-content {
+            line-height: 1.6;
+        }
+
+        #forecast-content h2 {
+            font-size: 20px;
+            color: var(--text-main);
+            margin-top: 15px;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        #forecast-content ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 15px;
+            z-index: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Loading & Errors */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        .alert-warning {
+            background-color: #fff8e1;
+            color: #f57f17;
+            border: 1px solid #ffe082;
+        }
+
+        .placeholder-text {
+            color: var(--text-light);
+            font-style: italic;
+            text-align: center;
+            padding: 30px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+
+            #map-container {
+                width: 100%;
+                height: 40vh;
+                flex-shrink: 0;
+            }
+
+            #data-panel {
+                width: 100%;
+                height: auto;
+                overflow-y: visible;
+            }
+
+            body {
+                overflow: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h1>🌊 Kerala Coastal Climate Visualizer</h1>
+    </nav>
+
+    <main>
+        <div id="map-container">
+            <div id="map"></div>
+            <button id="live-location-btn" style="position: absolute; top: 20px; right: 20px; z-index: 5; padding: 10px 15px; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                📍 Get Live Location
+            </button>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--vuln-critical);"></div> Critical
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--vuln-high);"></div> High
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--vuln-moderate);"></div> Moderate
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: var(--vuln-low);"></div> Low
+                </div>
+            </div>
+        </div>
+
+        <div id="data-panel">
+            <div id="weather-alert" class="alert alert-error">Weather data unavailable</div>
+            <div id="gemini-alert" class="alert alert-warning">AI analysis temporarily unavailable</div>
+
+            <div class="card" id="weather-card">
+                <h2>🌤️ Live Weather <span id="weather-location"></span> <span id="weather-loader" class="loader"
+                        style="display: none; margin-left: auto;"></span></h2>
+                <div id="weather-content">
+                    <div class="placeholder-text">Select a district on the map to view live weather data.</div>
+                </div>
+            </div>
+
+            <div class="card" id="forecast-card">
+                <h2>🤖 AI Climate Forecast <span id="forecast-loader" class="loader"
+                        style="display: none; margin-left: auto;"></span></h2>
+                <div id="forecast-content">
+                    <div class="placeholder-text">Select a district on the map to generate AI climate analysis.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Use a placeholder or inject via build step if needed. 
+        // Note: For real deployment, this should be handled securely.
+        const GOOGLE_MAPS_KEY = "AIzaSyD9F1IP2P7ZFsgcP4ZGYlivk5vRYh9ny_8";
+
+        let map;
+        let markers = [];
+        let currentWeatherData = null;
+        let districtDataMap = {};
+
+        const VULN_COLORS = {
+            'critical': '#d32f2f',
+            'high': '#f57c00',
+            'moderate': '#fbc02d',
+            'low': '#388e3c'
+        };
+
+        // Load Google Maps script dynamically
+        function loadGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+
+        async function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 10.0, lng: 76.2 },
+                zoom: 7,
+                mapTypeId: 'terrain',
+                styles: [
+                    { featureType: "water", elementType: "geometry", stylers: [{ color: "#e9ebed" }] },
+                    { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#f5f5f5" }] }
+                ]
+            });
+
+            await fetchDistricts();
+        }
+
+        async function fetchDistricts() {
+            try {
+                const res = await fetch('http://localhost:8000/api/districts');
+                const districts = await res.json();
+
+                districts.forEach(d => {
+                    districtDataMap[d.name] = d.vulnerability;
+                    const marker = new google.maps.Marker({
+                        position: { lat: d.lat, lng: d.lng },
+                        map: map,
+                        title: d.name,
+                        icon: {
+                            path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z',
+                            scale: 1,
+                            fillColor: VULN_COLORS[d.vulnerability.toLowerCase()],
+                            fillOpacity: 1,
+                            strokeColor: '#fff',
+                            strokeWeight: 1,
+                        }
+                    });
+
+                    marker.addListener('click', () => {
+                        handleDistrictClick(d.name);
+                    });
+                });
+            } catch (err) {
+                console.error("Failed to fetch districts:", err);
+            }
+
+            // Setup Live Location Button
+            document.getElementById('live-location-btn').addEventListener('click', () => {
+                if (navigator.geolocation) {
+                    const btn = document.getElementById('live-location-btn');
+                    btn.textContent = '⏳ Locating...';
+                    navigator.geolocation.getCurrentPosition(async (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        const marker = new google.maps.Marker({
+                            position: { lat, lng },
+                            map: map,
+                            title: "Live Location",
+                            animation: google.maps.Animation.DROP
+                        });
+                        map.panTo({ lat, lng });
+                        map.setZoom(10);
+                        
+                        btn.textContent = '📍 Get Live Location';
+                        document.getElementById('weather-location').textContent = `- Live Location`;
+                        document.getElementById('weather-alert').style.display = 'none';
+                        document.getElementById('gemini-alert').style.display = 'none';
+
+                        await fetchWeather('Live Location', lat, lng);
+                        if (currentWeatherData) {
+                            await fetchClimateAnalysis('Live Location');
+                        }
+                    }, () => {
+                        alert('Geolocation failed or permission denied.');
+                        document.getElementById('live-location-btn').textContent = '📍 Get Live Location';
+                    });
+                } else {
+                    alert('Geolocation is not supported by your browser.');
+                }
+            });
+        }
+
+        async function handleDistrictClick(locationName) {
+            document.getElementById('weather-location').textContent = `- ${locationName}`;
+            document.getElementById('weather-alert').style.display = 'none';
+            document.getElementById('gemini-alert').style.display = 'none';
+
+            await fetchWeather(locationName);
+            if (currentWeatherData) {
+                await fetchClimateAnalysis(locationName);
+            }
+        }
+
+        async function fetchWeather(locationName, lat = null, lng = null) {
+            const loader = document.getElementById('weather-loader');
+            const content = document.getElementById('weather-content');
+            const alert = document.getElementById('weather-alert');
+
+            loader.style.display = 'inline-block';
+            content.style.opacity = '0.5';
+
+            try {
+                let url = `http://localhost:8000/api/weather?location=${encodeURIComponent(locationName)}`;
+                if (lat !== null && lng !== null) {
+                    url = `http://localhost:8000/api/weather?lat=${lat}&lng=${lng}`;
+                }
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Weather fetch failed');
+                const data = await res.json();
+                currentWeatherData = data;
+                
+                if (lat !== null && lng !== null && data.location) {
+                    locationName = data.location; // update to real city name
+                    document.getElementById('weather-location').textContent = `- Live Location (${locationName})`;
+                }
+
+                const vuln = districtDataMap[locationName] || 'Unknown';
+                const vulnColor = VULN_COLORS[vuln.toLowerCase()] || 'inherit';
+
+                content.innerHTML = `
+                    <div class="weather-grid">
+                        <div class="weather-tile">
+                            <span class="label">Vulnerability</span>
+                            <span class="value" style="color: ${vulnColor}; text-transform: capitalize;">${vuln}</span>
+                        </div>
+                        <div class="weather-tile">
+                            <span class="label">Temperature</span>
+                            <span class="value">${data.temperature}°C</span>
+                        </div>
+                        <div class="weather-tile">
+                            <span class="label">Condition</span>
+                            <span class="value" style="text-transform: capitalize;">${data.weather_description}</span>
+                        </div>
+                        <div class="weather-tile">
+                            <span class="label">Wind</span>
+                            <span class="value">${data.wind_speed} m/s</span>
+                        </div>
+                        <div class="weather-tile">
+                            <span class="label">Humidity</span>
+                            <span class="value">${data.humidity}%</span>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                console.error(err);
+                currentWeatherData = null;
+                alert.textContent = `Weather data unavailable for ${locationName}`;
+                alert.style.display = 'block';
+                content.innerHTML = `<div class="placeholder-text">Failed to load weather data.</div>`;
+            } finally {
+                loader.style.display = 'none';
+                content.style.opacity = '1';
+            }
+        }
+
+        async function fetchClimateAnalysis(locationName) {
+            const loader = document.getElementById('forecast-loader');
+            const content = document.getElementById('forecast-content');
+            const alert = document.getElementById('gemini-alert');
+
+            loader.style.display = 'inline-block';
+            content.style.opacity = '0.5';
+
+            try {
+                const res = await fetch('http://localhost:8000/api/climate-analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        location: locationName,
+                        weather: currentWeatherData
+                    })
+                });
+                if (!res.ok) throw new Error('Analysis fetch failed');
+                const data = await res.json();
+
+                content.innerHTML = marked.parse(data.analysis);
+            } catch (err) {
+                console.error(err);
+                alert.style.display = 'block';
+                content.innerHTML = `<div class="placeholder-text">Failed to load AI climate analysis.</div>`;
+            } finally {
+                loader.style.display = 'none';
+                content.style.opacity = '1';
+            }
+        }
+
+        // Initialize maps API
+        // For development, we skip loading the actual maps API if key is placeholder
+        if (GOOGLE_MAPS_KEY !== "YOUR_GOOGLE_MAPS_KEY") {
+            loadGoogleMaps();
+        } else {
+            console.warn("Please provide a valid Google Maps API Key to render the map.");
+            document.getElementById('map').innerHTML = `
+                <div style="display:flex; justify-content:center; align-items:center; height:100%; background:#eee; color:#666; text-align:center; padding:20px;">
+                    Google Maps API Key required.<br>Update the GOOGLE_MAPS_KEY constant in index.html to view the interactive map.<br><br>
+                    <button onclick="handleDistrictClick('Thiruvananthapuram')" style="padding:10px; margin-top:10px; cursor:pointer;">Simulate Click on Thiruvananthapuram</button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>
